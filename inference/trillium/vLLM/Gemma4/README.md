@@ -4,7 +4,7 @@ In this guide, we show how to serve Gemma 4 IT models (e.g., `google/gemma-4-31B
 
 > Note: These setup instructions are **specifically for Gemma 4** on TPU and may not work for other models as it uses custom wheels and source builds for vllm and transformers.
 
-## Verified Models
+## Verified models
 
 The following larger Gemma 4 models are verified for deployment on TPU.
 
@@ -16,7 +16,7 @@ The following larger Gemma 4 models are verified for deployment on TPU.
 > [!NOTE]
 > Gemma 4 E2B IT, Gemma 4 E4B IT are currently not verified for TPU deployment.
 
-### Known Limitations with Current TPU Verification
+### Known limitations with current TPU verification
 
 The current vLLM wheels/configurations for Gemma 4 on TPU do not yet support the following preview features:
 - **Guided Generations with Structured Outputs** (e.g. JSON schema enforcement).
@@ -137,9 +137,27 @@ gcloud compute tpus tpu-vm ssh $TPU_NAME --project $PROJECT --zone=$ZONE
 
 ## Step 8: Access the running container
 
+If you started the server using the manual `docker run` command (Step 4), access the container using the following command:
+
 ```bash
 sudo docker exec -it $USER-vllm bash
 ```
+
+If you used the Fast Track with Docker Compose method, access the container using the command for your specific model:
+
+For the 31B model:
+
+```bash
+sudo docker compose -f docker-compose-gemma4-31B.yml exec vllm-gemma4-31b bash
+```
+
+For the 26B-A4B model:
+
+```bash
+sudo docker compose -f docker-compose-gemma4-26B-A4B.yml exec vllm-gemma4-26b-a4b bash
+```
+> [!NOTE]
+> If the service name in the 26B YAML file differs, replace `vllm-gemma4-26b-a4b` with the exact service name.
 
 ## Step 9: Test the server (Text + Image)
 
@@ -175,14 +193,21 @@ curl http://localhost:8000/v1/chat/completions \
 
 ## Step 10: Run Benchmarking
 
-You can benchmark the serving performance using the built-in `vllm bench serve` tools inside the running container.
-
 First, access the running container if you haven't already:
+
+If you used the manual docker `run` command:
+
 ```bash
 sudo docker exec -it $USER-vllm bash
 ```
 
-### Option A: Standard Text Benchmarking
+If you used the Docker Compose Fast Track (31B model):
+
+```bash
+sudo docker compose -f docker-compose-gemma4-31B.yml exec vllm-gemma4-31b bash
+```
+
+### Option A: Standard text benchmarking
 
 Run the benchmark with random text inputs:
 
@@ -196,7 +221,7 @@ vllm bench serve \
     --random-output-len 128
 ```
 
-### Option B: Multimodal (Image) Benchmarking
+### Option B: Multimodal (Image) benchmarking
 
 Run the benchmark with synthetic multimodal (image) traffic:
 
